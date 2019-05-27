@@ -1,0 +1,35 @@
+{
+  "name": "jybid",
+  "version": "1.0.0",
+  "description": "json yaml bundle inherit dereference",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "json-ptr": "^1.1.2",
+    "json-schema-ref-parser": "^6.1.0",
+    "rfc6902": "^3.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/funduck/jybid.git"
+  },
+  "keywords": [
+    "json",
+    "yaml",
+    "bundle",
+    "inherit",
+    "dereference"
+  ],
+  "author": "funduck",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/funduck/jybid/issues"
+  },
+  "homepage": "https://github.com/funduck/jybid#readme"
+}

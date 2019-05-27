@@ -1,8 +1,10 @@
 # JYBID - json-yaml-bundle-inherit-dereference
-Bundling/extending documents with JSON-Patch
+Bundling json and yaml documents + extending with JSON-Patch
 
 ## Bundle & Dereference
-Library exports **bundle(filepath, options)** and **dereference(filepath, options)**, both if `options.inherit` is passed compile json-patches, for example:
+**bundle(filepath, options) returns Promise**  
+**dereference(filepath, options) returns Promise**  
+Both if `options.inherit` is passed compile json-patches, for example:
 ```
 const { bundle, dereference } = require('./index')
 const fs = require('fs')
@@ -26,12 +28,12 @@ dereference('/tmp/b.json', {inherit: true}).then((doc) => {console.log(JSON.stri
 ```
 
 ## Better JSON-Patch - [*] path parts for array index
-In JSON patch **path** referencing array elements does not look good, which element do we remove here, you never know until you see **object**?
+In JSON-Patch **path** referencing array elements does not look good, which element do we remove here, you never know until you see **object**?
 ```
 object = [1,2,234]
 patch = [{op: 'remove', path: '/2'}]
 ```
-We can make **path** better if we select element by its properties, not index, so we'd like to replace numbers with selectors, like jquery selectors
+We can make **path** better if we select element by its properties, not index, so we'd like to replace numbers with **selectors**, like in jquery
 ```
 patch = [{op: 'remove', path: '/[=234]'}]
 /* we compile patch to receive standart */
@@ -41,31 +43,35 @@ compilePatchOps(object, patch)
 Inside `[*]` quotation is used: 
 * `\"` to get `"`
 * `\\` to get `\`
-`/` is `/`, `~` is `~`, not `~1` and `~0`
+`/` is `/`, `~` is `~`, not `~1` and `~0` like in JSON-Pointer
 
-### select objects with by property value pairs
+### Selectors
+#### by property value pairs
 Value is treated as string if possible and as number if it can't be string
-`[prop=value]` == `{prop: 'value'}`
-`[prop="13"]` == `{prop: '13'}`
-`[prop=42]` == `{prop: 42}`
-To reference compicated property name 
+`[prop=value]` == `{prop: 'value'}`  
+`[prop="13"]` == `{prop: '13'}`  
+`[prop=42]` == `{prop: 42}`  
+To reference compicated property name  
 `["string attr name"=name]` == `{'string attr name': 'name'}`
 
-### select objects with property
-`[prop=]` == `{prop: 1}` or `{prop: 'a'}` or `{prop: null`
-`["string attr name"=]` for quoted property name
+#### with property
+`[prop=]` == `{prop: 1}` or `{prop: 'a'}` or `{prop: null`  
+`["string attr name"=]` for quoted property name  
+but `[prop=null]` == `{prop: null}` and `[prop="null"]` == `{prop: "null"}`
 
-### select values
+#### values
 `[="name"]` == `'name'`
 `[=13]` == `13`
 
-### multiple conditions
+#### multiple conditions
 `[prop=name][date=]` == `{prop: 'name', date: 'anything'}`
 
 ### Compilation of [*] pathes to JSON-Pointer
-When source document is bundled we check patch operations if they contain our `[*]` in **path** and corresponding object in source is array, then we replace operation with equal operations with JSON-Pointer pathes.
-
-### Example
+**compilePatchOps(source, patch) returns Array**  
+When source document is bundled we check every patch operation:
+1. if it contains our `[*]` in **path**
+2. corresponding object in source is array  
+then we replace it with equal operations with JSON-Pointer pathes, for example:
 ```
 const { compilePatchOps } = require('./index')
 
@@ -81,3 +87,7 @@ compilePatchOps(
 ## Notes 
 If `options.inherit` is set to **$patch** document syntax complies to [ajv-merge-patch](https://github.com/epoberezkin/ajv-merge-patch)
 
+## Thanks
+[json-schema-ref-parser](https://github.com/APIDevTools/json-schema-ref-parser)  
+[rfc6902](https://github.com/chbrown/rfc6902)  
+[json-ptr](https://github.com/flitbit/json-ptr)

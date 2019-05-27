@@ -1,76 +1,20 @@
 'use strict';
 
-const refParser = require('json-schema-ref-parser');
 const jsonPatch = require('rfc6902');
-const jsonPtr = require('json-ptr');
+const refParser = require('./patched-json-schema-ref-parser');
 const jps = require('./json-pointer-selectors');
 
-const pathRegex = new RegExp(/^((?:\/.+?)*?)\/((?:\[.*?=.*?\])+)($|\/.*$)/);
-const kvRegex = new RegExp(/\[(.*?)=(.*?)\]/g);
-
-const matchesConditions = function (obj, conditions) {
-//    console.log(obj, conditions)
-    let c;
-    for (let i = 0; i < conditions.length; i++) {
-        c = conditions[i];
-        if (c.key != null && c.value != null && obj[c.key] !== c.value ||
-            c.key != null && c.value == null && obj[c.key] == undefined ||
-            c.key == null && c.value != null && obj !== c.value
-        ) {
-            return false;
-        }
-    }
-    return true;
-};
-
-const compilePatchOps = function (source, ops) {
-    const res = [];
-    for (let i = 0; i < ops.length; i++) {
-        if (!ops[i].path) continue;
-
-        const re = jps.parsePath(ops[i].path);
-        if (re.selector) {
-            const arr = jsonPtr.get(source, re.prefix);
-            let tmp = [];
-            // if object is not array check deeper
-            if (!Array.isArray(arr)) {
-                if (arr[re.infix] != undefined && re.suffix != '') {
-                    // relative pathes
-                    tmp = compilePatchOps(arr[re.infix], [Object.assign({}, ops[i], {path: re.suffix})]);
-                    for (let j = 0;j < tmp.length; j++) {
-                        // relative pathes back to absolute
-                        tmp[j].path = re.prefix + re.infix + tmp[j].path;
-                        res.push(tmp[j]);
-                    }
-                } else {
-                    res.push(ops[i]);
-                }
-                continue;
-            }
-//            console.log('array');
-            // if found array check conditions
-            for (let j = 0; j < arr.length; j++) {
-                if (matchesConditions(arr[j], re.selector)) {
-                    // changing path to JSON-Pointer with number
-                    tmp.push(Object.assign({}, ops[i], {path: re.prefix + '/' + j + re.suffix}));
-                }
-            }
-            if (tmp.length) {
-//                console.log('array, checking deeper', tmp);
-                // checking new pathes deeper
-                tmp = compilePatchOps(source, tmp);
-            }
-            if (tmp.length) {
-                res.push(...tmp);
-            }
-        } else {
-            res.push(ops[i]);
-        }
-    }
-    return res;
-};
-
+/**
+    @param {object} doc
+    @param {object} options
+    @param {boolean|string} options.inherit - code word or boolean, if TRUE then code word wil be "$inherit"
+    @param {function} options.compileJsonPatch - custom compiler
+    
+    @return {object} doc - modified source
+*/
 const inherit = function (doc, options) {
+    if (typeof doc != 'object' || doc == null) return doc;
+    
     options = options || {};
     if (options.inherit == null) {
         return doc;
@@ -78,8 +22,12 @@ const inherit = function (doc, options) {
     if (options.inherit === true) {
         options.inherit = '$inherit';
     }
-    if (typeof doc == 'object' && doc.constructor.name == 'Object') {
-        Object.keys(doc).forEach((key) => {
+    if (Array.isArray(doc)) {
+        for (let i = 0; i < doc.length; i++) {
+            doc[i] = inherit(doc[i], options);
+        }
+    } else {
+        for (const key in doc) {
             if (key == '$ref') {
                 if (!doc.$ref.match(/^#/)) {
                     throw new Error('inherit: all outer references \'$ref\' must be resolved!');
@@ -90,14 +38,18 @@ const inherit = function (doc, options) {
                 }
             }
             doc[key] = inherit(doc[key], options);
-        });
+        }
         if (options.inherit && doc[options.inherit]) {
             const inh = doc[options.inherit];
             if (inh.source == null) {
                 throw new Error(`inherit: ${options.inherit}.source is null!`);
             }
             if (!(inh.with == null || Array.isArray(inh.with) && inh.with.length == 0)) {
-                jsonPatch.applyPatch(inh.source, compilePatchOps(inh.source, inh.with));
+                const patch = (options.compileJsonPatch || jps.compileJsonPatch)(inh.source, inh.with)
+                jsonPatch.applyPatch(
+                    inh.source, 
+                    patch
+                );
             }
             doc = inh.source;
         }
@@ -105,8 +57,21 @@ const inherit = function (doc, options) {
     return doc;
 };
 
+/**
+    @param {string} filepath
+    @param {object} options
+    @param {boolean|string} options.inherit - code word or boolean, if TRUE code word will be "$inherit" if FALSE no inheritance will be resolved
+    @param {function} options.compileJsonPatch - custom compiler
+    
+    @return {Promise.<object>}
+*/
 const bundle = function (filepath, options) {
-    return refParser.bundle(filepath)
+    options = options || {};
+    const parser = new refParser();
+    if (typeof options.inherit == 'string') {
+        parser.setJybidInheritWord(options.inherit);
+    }
+    return parser.bundle(filepath)
     .then((doc) => {
         try {
             doc = inherit(doc, options);
@@ -122,6 +87,14 @@ const bundle = function (filepath, options) {
     });
 };
 
+/**
+    @param {string|object} doc - filepath or bundled document
+    @param {object} options
+    @param {boolean|string} options.inherit - code word or boolean, if TRUE code word will be "$inherit" if FALSE no inheritance will be resolved
+    @param {function} options.compileJsonPatch - custom compiler
+    
+    @return {Promise.<object>}
+*/
 const dereference = function (doc, options) {
     if (typeof doc == 'string') {
         return bundle(doc, options)
@@ -144,4 +117,4 @@ const dereference = function (doc, options) {
     });
 };
 
-module.exports = { bundle, dereference, compilePatchOps, matchesConditions };
+module.exports = { bundle, dereference };
