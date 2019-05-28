@@ -107,9 +107,9 @@ const cases = {
                 with: [{
                     op: 'replace', path: '/a', value: {$ref: '#/b'}
                 }, {
-                    op: 'remove', path: '/d/[$ref=#/c]'
-                }, {
                     op: 'remove', path: '/d/[$ref=#/b]'
+                }, {
+                    op: 'remove', path: '/d/[$ref=#/c]'
                 }]
             }}
         },

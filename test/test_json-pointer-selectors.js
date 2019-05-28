@@ -229,8 +229,8 @@ describe('Json pointer selectors', function () {
             op: 'remove', path: '/arr/[=1]'     },{
             op: 'remove', path: '/arr/[="2"]'   },{
             op: 'remove', path: '/arr/[c=3]'    },{
+            op: 'remove', path: '/arr/[c=]'     },{
             op: 'remove', path: '/arr/[d="4"]'  },{
-            op: 'remove', path: '/arr/[d=]'     },{
             op: 'remove', path: '/arr/[1 2 =]'  },{
             op: 'remove', path: '/arr/["1 2 "=]'},{
             op: 'remove', path: '/arr/[r=]/r/[=7]'
@@ -239,13 +239,12 @@ describe('Json pointer selectors', function () {
             op: 'remove', path: '/arr/0'    },{
             op: 'remove', path: '/arr/1'    },{
             op: 'remove', path: '/arr/2'    },{
+            op: 'remove', path: '/arr/2'    },{
             op: 'remove', path: '/arr/3'    },{
-            op: 'remove', path: '/arr/3'    },{
-            op: 'remove', path: '/arr/4'    },{
             op: 'remove', path: '/arr/5'    },{
             op: 'remove', path: '/arr/5'    },{
             op: 'remove', path: '/arr/6/r/0'
-        }].reverse();
+        }];
         try {
             assert.deepEqual(
                 cpo,

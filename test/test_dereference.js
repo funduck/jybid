@@ -95,7 +95,7 @@ const casesDereference = {
                     with: [{
                         op: 'add', path: '/arr/[x=2]/found', value: true
                     },{
-                        op: 'add', path: '/arr/[x=4]/arr2/[x=5]/found', value: true
+                        op: 'add', path: '/arr/[x=4][copy=true]/arr2/[x=5]/found', value: true
                     }]
                 }
             },
@@ -111,8 +111,7 @@ const casesDereference = {
             }, {
                 x: 4,
                 arr2: [{
-                    x: 5,
-                    found: true
+                    x: 5
                 },{
                     x: '5'
                 }]
@@ -179,6 +178,30 @@ describe('Jybid dereference object', function () {
         .catch((e) => {
             try {
                 assert.equal(e.message, `inherit: $inherit.source is null!`);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    
+    it('fail if selector compiles to multiple operations', (done) => {
+        dereference({
+            $inherit: {
+                source: {
+                    arr: [{k:1, l: 1}, {k: 1, l: 2}]
+                },
+                with: [{op: 'replace', path: '/arr/[k=]/l', value: 3}]
+            }
+        }, {
+            inherit: true
+        })
+        .then(() => {
+            done(new Error('not failed'));
+        })
+        .catch((e) => {
+            try {
+                assert(e.message.match('compiles to selector that has multiple matches, it is forbidden'));
                 done();
             } catch (e) {
                 done(e);

@@ -1,7 +1,6 @@
 'use strict';
 
 const jsonPtr = require('json-ptr');
-const sortJsonPatchOps = require('./sort-json-patch-ops')
 
 //
 //  Some json pointer additions (path with object selectors)
@@ -233,10 +232,15 @@ const compileJsonPatch = (source, patchOperations) => {
                 continue;
             }
             // if found array check conditions
+            let found = false;
             for (let j = 0; j < arr.length; j++) {
                 if (objectMatchesSelector(arr[j], re.selector)) {
+                    if (found) {
+                        throw new Error(`path ${patchOperations[i].path} compiles to selector that has multiple matches, it is forbidden`);
+                    }
                     // changing path to JSON-Pointer with number
                     tmp.push(Object.assign({}, patchOperations[i], {path: re.prefix + '/' + j + re.suffix}));
+                    found = true;
                 }
             }
             if (tmp.length) {
@@ -250,7 +254,7 @@ const compileJsonPatch = (source, patchOperations) => {
             res.push(patchOperations[i]);
         }
     }
-    return sortJsonPatchOps(res);
+    return res;
 };
 
 module.exports = { buildSelectorString, parseJsonPointer, objectMatchesSelector, compileJsonPatch };
