@@ -9,15 +9,15 @@ const cases = {
     'patch without $ref\'s': {
         op: 'bundle',
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
-            '/tmp/b.json': {$inherit: {
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
+            '.tmp/b.json': {$inherit: {
                 source: {$ref: './a.json'},
                 with: [{
                     op: 'replace', path: '/a', value: 11
                 }]
             }}
         },
-        arguments: ['/tmp/b.json', {inherit: true}],
+        arguments: ['.tmp/b.json', {inherit: true}],
         result: {
           a: 11, b: {$ref: '#/c'}, c: 3
         }
@@ -25,8 +25,8 @@ const cases = {
     'patch with internal $ref': {
         op: 'bundle',
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
-            '/tmp/b.json': {$inherit: {
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
+            '.tmp/b.json': {$inherit: {
                 source: {$ref: './a.json'},
                 with: [{
                     op: 'replace', path: '/a', value: {$ref: '#/c'}
@@ -35,7 +35,7 @@ const cases = {
                 }]
             }}
         },
-        arguments: ['/tmp/b.json', {inherit: true}],
+        arguments: ['.tmp/b.json', {inherit: true}],
         result: {
           a: {$ref: '#/c'}, b: {$ref: '#/c'}, c: 3, d: {obj: [{$ref: '#/c'}]}
         }
@@ -43,15 +43,15 @@ const cases = {
     'patch with internal $ref (custom word $INHERIT)': {
         op: 'bundle',
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
-            '/tmp/b.json': {$INHERIT: {
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
+            '.tmp/b.json': {$INHERIT: {
                 source: {$ref: './a.json'},
                 with: [{
                     op: 'replace', path: '/a', value: {$ref: '#/c'}
                 }]
             }}
         },
-        arguments: ['/tmp/b.json', {inherit: '$INHERIT'}],
+        arguments: ['.tmp/b.json', {inherit: '$INHERIT'}],
         result: {
           a: {$ref: '#/c'}, b: {$ref: '#/c'}, c: 3
         }
@@ -59,15 +59,15 @@ const cases = {
     'patch with internal $ref (duplicate to check that default $inherit word works)': {
         op: 'bundle',
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
-            '/tmp/b.json': {$inherit: {
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
+            '.tmp/b.json': {$inherit: {
                 source: {$ref: './a.json'},
                 with: [{
                     op: 'replace', path: '/a', value: {$ref: '#/c'}
                 }]
             }}
         },
-        arguments: ['/tmp/b.json', {inherit: true}],
+        arguments: ['.tmp/b.json', {inherit: true}],
         result: {
           a: {$ref: '#/c'}, b: {$ref: '#/c'}, c: 3
         }
@@ -75,15 +75,15 @@ const cases = {
     'dereference file with patch with internal $ref': {
         op: 'dereference',
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
-            '/tmp/b.json': {$inherit: {
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
+            '.tmp/b.json': {$inherit: {
                 source: {$ref: './a.json'},
                 with: [{
                     op: 'replace', path: '/a', value: [{$ref: '#/c'}]
                 }]
             }}
         },
-        arguments: ['/tmp/b.json', {inherit: true}],
+        arguments: ['.tmp/b.json', {inherit: true}],
         result: {
           a: [3], b: 3, c: 3
         }
@@ -91,8 +91,8 @@ const cases = {
     'more 1 inheritance': {
         op: 'bundle',
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3, d: []},
-            '/tmp/b.json': {$inherit: {
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3, d: []},
+            '.tmp/b.json': {$inherit: {
                 source: {$ref: './a.json'},
                 with: [{
                     op: 'replace', path: '/a', value: {$ref: '#/c'}
@@ -102,7 +102,7 @@ const cases = {
                     op: 'add', path: '/d/-', value: {$ref: '#/b'}
                 }]
             }},
-            '/tmp/c.json': {$inherit: {
+            '.tmp/c.json': {$inherit: {
                 source: {$ref: './b.json'},
                 with: [{
                     op: 'replace', path: '/a', value: {$ref: '#/b'}
@@ -113,7 +113,7 @@ const cases = {
                 }]
             }}
         },
-        arguments: ['/tmp/c.json', {inherit: true}],
+        arguments: ['.tmp/c.json', {inherit: true}],
         result: {
           a: {$ref: '#/b'}, b: {$ref: '#/c'}, c: 3, d: []
         }

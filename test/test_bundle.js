@@ -8,10 +8,10 @@ const date = new Date();
 const casesBundle = {
     'bundle': {
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: './b.json#/value'}},
-            '/tmp/b.json': {value: 2, a: {$ref: './a.json'}}
+            '.tmp/a.json': {a: 1, b: {$ref: './b.json#/value'}},
+            '.tmp/b.json': {value: 2, a: {$ref: './a.json'}}
         },
-        arguments: ['/tmp/b.json'],
+        arguments: ['.tmp/b.json'],
         result: {
           "value": 2,
           "a": {
@@ -24,21 +24,21 @@ const casesBundle = {
     },
     'bundle + inherit': {
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
-            '/tmp/b.json': {$inherit: {source: {$ref: './a.json'}}}
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
+            '.tmp/b.json': {$inherit: {source: {$ref: './a.json'}}}
         },
-        arguments: ['/tmp/b.json', {inherit: true}],
+        arguments: ['.tmp/b.json', {inherit: true}],
         result: {
           a: 1, b: {$ref: '#/c'}, c: 3
         }
     },
     'bundle + 2 * inherit': {
         prepare: {
-            '/tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
-            '/tmp/b.json': {b: {$inherit: {source: {$ref: './a.json'}}}},
-            '/tmp/c.json': {$inherit: {source: {$ref: './b.json'}}},
+            '.tmp/a.json': {a: 1, b: {$ref: '#/c'}, c: 3},
+            '.tmp/b.json': {b: {$inherit: {source: {$ref: './a.json'}}}},
+            '.tmp/c.json': {$inherit: {source: {$ref: './b.json'}}},
         },
-        arguments: ['/tmp/c.json', {inherit: true}],
+        arguments: ['.tmp/c.json', {inherit: true}],
         result: {
           b: {a: 1, b: {$ref: '#/b/c'}, c: 3}
         }
