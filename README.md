@@ -4,20 +4,20 @@
 This lib allows to bundle/dereference `json` and `yaml` documents and extend a document with [JSON-Patch](http://jsonpatch.com/)
 
 ## Purpose
-I was making some API docs in [OpenAPI](https://www.openapis.org/) format and met 2 troubles:
+I was making some API docs in [OpenAPI](https://www.openapis.org/) format and met troubles:
 1. one doc for whole API is too big
-2. docs sometimes extend one another: add some, remove some, change some. For example, when API version changed I added some URL request parameters, renamed some, and removed others
-3. when I have versions of API, how to get a list of changes?
+2. docs sometimes extend one another: add some keys, remove some keys, change some values. For example, when API version changed I added some URL request parameters, renamed some parameters, and removed others
+3. when I have several versions of API, how to get a list of changes? It would be so great to get it from OpenAPI docs in form of [JSON-Patch](http://jsonpatch.com/) and visualize [somehow](https://github.com/benjamine/jsondiffpatch)
 
 So I wanted to:
 1. Use `json` and `yaml` config files simultaneously
-2. Split big files into pieces and being able to glue them back on reading
-3. Have some inheritance technique for files (single and splitted) that allows describe changes and get a resulting document
+2. Split big files into pieces being able to glue them back on reading
+3. Have some inheritance technique for files (single and splitted) that allows me to describe changes and get a resulting document
 
 Needs 1 and 2 are solved by [json-schema-ref-parser](https://github.com/APIDevTools/json-schema-ref-parser)  
 Need 3 could be solved by something like [ajv-merge-patch](https://github.com/epoberezkin/ajv-merge-patch)  
 But all together it didn't work out of box, so I made a little patch to [json-schema-ref-parser](https://github.com/APIDevTools/json-schema-ref-parser) and added JSON-Patch compiler.   
-And extended JSON-Patch selector for array elements
+And extended JSON-Pointer selector for array elements.
 
 ## Example
 We have weather forecast database for Russia and Finland and we supposed that cities in these countries always have different names so we dont need to specify country in request. Of course it is wrong idea, but just for example..  
