@@ -145,13 +145,13 @@ It works like AND
 
 ## Examples
 ### Long story short
-Weather service API v1 file ![api_v1](./examples/api_1.0.yaml)  
+Weather service API v1 file ![api_v1](./examples/api_1.yaml)  
 ```
 node index.js bundle --file examples/api_v1.yaml
 ```
 And you have [bundled](./examples/api_v1.bundled.json) API file for version 1.  
 
-Next you have version 2 in file [api_v2](./examples/api_2.0.yaml), look how short it is. Compile it to have correct service API file for version 2
+Next you have version 2 in file [api_v2](./examples/api_2.yaml), look how short it is. Compile it to have correct service API file for version 2
 ```
 node index.js bundle --file examples/api_v2.yaml
 ```
@@ -159,7 +159,7 @@ Without JYBID you'd have to write it manually: [bundled](./examples/api_v2.bundl
 
 ### Long story long
 Suppose we have a weather forecast database and want to build a readonly service for it. We have data only for Russia and Finland and we supposed that cities in these countries always have different names so we dont need to specify country in request to our service. Of course this is not the best idea, but just for example..   
-So, we have a sevice API [api_v1](./examples/api_1.0.yaml).  
+So, we have a sevice API [api_v1](./examples/api_1.yaml).  
 Also there are [bundled](./examples/api_v1.bundled.json) and [dereferenced](./examples/api_v1.dereferenced.json) documents.  
 You can try bundling or dereferencing like this
 ```
@@ -168,10 +168,10 @@ node index.js bundle --file examples/api_v1.yaml
 
 Ok, next month we add forecasts for Belarus and we have troubles now: for example a town named 'Kamenka' exists in Russia and in Belarus.  
 Of course we need to add parameter `country` but we can't add it to v1 because some people already use our API in their app and it works ok in Russia and in Finland. If we add `country` with some default value many requests will fail. Well, we could make some workarounds based on city name being checked against list of all cities in our 3 countries but.. it is just better to make next version of API correct and ask our clients to use it instead of incorrect v1.  
-So we need to replace unclear parameter 'names' with 'cities' and add 'country', this [api_v2](./examples/api_2.0.yaml) is how we could do it with [jybid](#jybid)  
+So we need to replace unclear parameter 'names' with 'cities' and add 'country', this [api_v2](./examples/api_2.yaml) is how we could do it with [jybid](#jybid)  
 Without inheritance you would have to make one of these documents manually [bundled](./examples/api_v2.bundled.json) [dereferenced](./examples/api_v2.dereferenced.json)  
 
-In [api_v2](./examples/api_2.0.yaml) you can find examples of inheritance  
+In [api_v2](./examples/api_2.yaml) you can find examples of inheritance  
 ```
 $inherit:
   source:
