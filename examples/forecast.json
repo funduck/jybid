@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "properties": {
+    "dateOfForecast": {
+      "type": "string",
+      "format": "date"
+    },
+    "city": {"type": "string"},
+    "country": {"type": "string"},
+    "dateFrom": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateTo": {
+      "type": "string",
+      "format": "date"
+    },
+    "minTemperature": {
+      "type": "number",
+      "example": 17.5
+    },
+    "maxTemperature": {
+      "type": "number",
+      "example": 23.5
+    },
+    "humidity": {
+      "type": "number",
+      "example": 60
+    }
+  }
+}

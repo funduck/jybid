@@ -118,3 +118,59 @@ const dereference = function (doc, options) {
 };
 
 module.exports = { bundle, dereference };
+
+if (process.argv[1] == module.filename) {
+    let cmd;
+    switch (process.argv[2]) {
+        case 'bundle':
+        case 'dereference': {
+            cmd = process.argv[2]; 
+            break;
+        }
+        default: {
+            console.log(
+`Usage: node index.js COMMAND --file FILENAME [--inherit CODEWORD]
+Commands:
+    bundle                resolve external references
+    dereference           resolve all references
+Options:
+    --inherit CODEWORD    if 'false' is passed, no inheritance will be compiled
+                          if any word is passed it will be used instead of default '$inherit'
+                          if option is not used default '$inherit' is used and inheritance is compiled
+Examples:
+    node index.js bundle --file filename1.json
+    node index.js bundle --file filename2.json --inherit false
+    node index.js dereference --file filename3.json --inherit patch`);
+            process.exit(0);
+            break;
+        }
+    }
+
+    if (process.argv[3] != '--file') {
+        console.error('invalid option, run with --help');
+        process.exit(1);
+    }
+
+    const fs = require('fs');
+    const path = require('path');
+    const fname = path.resolve(__dirname, process.argv[4]);
+
+    if (!fs.existsSync(fname)) {
+        console.error(`file ${fname} not found`);
+        process.exit(1);
+    }
+
+    let inherit = true;
+    if (process.argv[5] == '--inherit') {
+        inherit = process.argv[6] == 'false' ? false : process.argv[6];
+    }
+
+    module.exports[cmd](fname, { inherit })
+    .then((res) => {
+        console.log(JSON.stringify(res, null, '  '));
+    })
+    .catch((e) => {
+        console.error(e.stack);
+        process.exit(1);
+    });
+}

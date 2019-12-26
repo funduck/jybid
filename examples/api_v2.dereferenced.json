@@ -1,0 +1,142 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Readonly API for weather forecast service",
+    "description": "Multiline description of service.",
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://weather.forecast/v2"
+    }
+  ],
+  "paths": {
+    "/city": {
+      "get": {
+        "summary": "Get forecast for city by name",
+        "operationId": "getForecastInCity",
+        "parameters": [
+          {
+            "name": "cities",
+            "in": "query",
+            "description": "Latin city names",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "default": "Moscow"
+              }
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "Latin country name",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "Russia"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "dateOfForecast": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "country": {
+                        "type": "string"
+                      },
+                      "dateFrom": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "dateTo": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "minTemperature": {
+                        "type": "number",
+                        "example": 17.5
+                      },
+                      "maxTemperature": {
+                        "type": "number",
+                        "example": 23.5
+                      },
+                      "humidity": {
+                        "type": "number",
+                        "example": 60
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "any error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Forecast": {
+        "type": "object",
+        "properties": {
+          "dateOfForecast": {
+            "type": "string",
+            "format": "date"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "dateFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "dateTo": {
+            "type": "string",
+            "format": "date"
+          },
+          "minTemperature": {
+            "type": "number",
+            "example": 17.5
+          },
+          "maxTemperature": {
+            "type": "number",
+            "example": 23.5
+          },
+          "humidity": {
+            "type": "number",
+            "example": 60
+          }
+        }
+      }
+    }
+  }
+}

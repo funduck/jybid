@@ -1,0 +1,43 @@
+openapi: 3.0.1
+info:
+  title: Readonly API for weather forecast service
+  description: >-
+    Multiline
+    description of service.
+  version: 1.0.0
+servers:
+  - url: 'https://weather.forecast/v1'
+paths:
+  /city:
+    get:
+      summary: Get forecast for city by name
+      operationId: getForecastInCity
+      parameters:
+        - name: names
+          in: query
+          description: Latin city names
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              default: Moscow
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Forecast'
+        '400':
+          description: any error
+          content: 
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    Forecast:
+      $ref: ./forecast.json
