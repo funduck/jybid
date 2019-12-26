@@ -176,10 +176,10 @@ so, selectors are:
 
 ### by property=value pairs
 Value is treated as string if possible and as number if it can't be string
-* `[prop=value] == {prop: 'value'}`  
-* `[prop="13"] == {prop: '13'}`  
-* `[prop=42] == {prop: 42}`  
-* `["string attr name"=name] == {'string attr name': 'name'}` To reference compicated property name use double quotes  
+* `[prop=value]` == `{prop: 'value'}`  
+* `[prop="13"]` == `{prop: '13'}`  
+* `[prop=42]` == `{prop: 42}`  
+* `["string attr name"=name]` == `{'string attr name': 'name'}` To reference compicated property name use double quotes  
 
 ### with property
 * `[prop=]` == `{prop: 1}` or `{prop: 'a'}` or `{prop: null}`  
@@ -196,7 +196,8 @@ It works like AND
 `[prop=name][date=]` == `{prop: 'name', date: 'anything'}`
 
 ## Method: compilePatchOps
-To compile [JSON-Patch](http://jsonpatch.com/) with [selectors](#selectors) in pathes to [JSON-Patch](http://jsonpatch.com/) with [JSON-Pointer](https://tools.ietf.org/html/rfc6901) pathes  
+To compile [JSON-Patch](http://jsonpatch.com/) with [selectors](#selectors) in pathes to [JSON-Patch](http://jsonpatch.com/) with [JSON-Pointer](https://tools.ietf.org/html/rfc6901) pathes there is a method  
+ 
 **compilePatchOps(source, patch) returns Array**  
 
 When source document is bundled we check every patch operation:
