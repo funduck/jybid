@@ -162,7 +162,8 @@ Examples:
 
     let inherit = true;
     if (process.argv[5] == '--inherit') {
-        inherit = process.argv[6] == 'false' ? false : process.argv[6];
+        inherit = process.argv[6] == 'false' ? false : 
+            process.argv[6] == 'true' ? true : process.argv[6];
     }
 
     module.exports[cmd](fname, { inherit })

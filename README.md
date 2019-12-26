@@ -20,21 +20,21 @@ Well, when I was writing some API docs in [OpenAPI](https://www.openapis.org/) f
 3. how to get diff between versions of API? It would be great to have [JSON-Patch](http://jsonpatch.com/) and visualize it [somehow](https://github.com/benjamine/jsondiffpatch)
 
 So I wanted to:
-1. Use `json` and `yaml` config files simultaneously, being able to split big files into several smaller
+1. Use `json` and `yaml` files simultaneously, being able to split big files into several smaller
 2. Have some inheritance technique based on JSON-Patch
 
 1 comes easy, it can be solved by [json-schema-ref-parser](https://github.com/APIDevTools/json-schema-ref-parser)  
 2 also has a solution like [ajv-merge-patch](https://github.com/epoberezkin/ajv-merge-patch)  
 But all together it doesn't work out of box.  
-So I made a little patch to [json-schema-ref-parser](https://github.com/APIDevTools/json-schema-ref-parser) that enables inheritance based on JSON-Patch syntax.  
-Also I extended JSON-Pointer for array indexes [array selector](#selectors).
+So I made a little patch to json-schema-ref-parser that enables inheritance based on JSON-Patch syntax.  
+Also I extended JSON-Pointer for array indexes in [selectors](#selectors).
 
 ## Methods
 ### bundle
-**bundle(filepath, options) returns Promise** - to bundle a file  
+**bundle(filepath, options) returns Promise with object** - to bundle a file  
 
 ### dereference
-**dereference(filepath, options) returns Promise** - to bundle a file and resolve even internal references 
+**dereference(filepath, options) returns Promise with object** - to bundle a file and resolve even internal references 
 
 For both
 * if `options.inherit==true` then json-patches will be compiled  
@@ -70,13 +70,13 @@ dereference('/tmp/b.json', {inherit: true}).then((doc) => {console.log(JSON.stri
 ### compilePatchOps
 **compilePatchOps(source, patch) returns Array**  
 
-To compile [JSON-Patch](http://jsonpatch.com/) with [selectors](#selectors) in pathes to [JSON-Patch](http://jsonpatch.com/) with [JSON-Pointer](https://tools.ietf.org/html/rfc6901) pathes there is a method  
+To compile [JSON-Patch](http://jsonpatch.com/) with [selectors](#selectors) in pathes to JSON-Patch with [JSON-Pointer](https://tools.ietf.org/html/rfc6901) pathes there is a method  
 
 When source document is bundled we check every patch operation:
 1. if it contains selector in **path**
 2. corresponding object in **source** is array  
 
-then we replace it with equal operation with [JSON-Pointer](https://tools.ietf.org/html/rfc6901) path, for example:
+then we replace it with equal operation with JSON-Pointer path, for example:
 
 ```
 const { compilePatchOps } = require('./index')
@@ -95,15 +95,15 @@ compilePatchOps(
 [with property](#with_property)  
 [with value](#with_value)  
 
-In [JSON-Patch](http://jsonpatch.com/) **path** must be a [JSON-Pointer](https://tools.ietf.org/html/rfc6901), but referencing array elements does not look good: what means `path: '/2'` ?. At what element do we point? You never know until you see **object** to which you apply the patch  
+In [JSON-Patch](http://jsonpatch.com/) path must be a [JSON-Pointer](https://tools.ietf.org/html/rfc6901), but referencing array elements does not look good: what means `path: '/2'`?. At what element do we point? You never know until you see object to which you apply the patch  
 ```
 object = [1,2,234]
 patch = [{op: 'remove', path: '/2'}]
 ```
 Now we know, we wanted to remove `234`.  
-Lets select element by its properties or value like in jquery
+Here I say, lets select element by its properties or value like in jquery
 ```
-// patch with selector by value in path
+// selector by value
 patch = [{op: 'remove', path: '/[=234]'}]
 
 // compiling patch
@@ -112,7 +112,7 @@ compilePatchOps(object, patch)
 // patch with JSON-Pointer path
 [{op: 'remove', path: '/2'}]
 ```
-So you can have easier to understand JSON-Patch operations with arrays and compile them to valid when needed.
+So you can have documents with easier to understand JSON-Patch operations and compile them when needed.
 
 Note that inside selectors quotation is used:
 * `\"` is `"`
@@ -145,13 +145,13 @@ It works like AND
 
 ## Examples
 ### Long story short
-Weather service API v1 file [api_v1](./examples/api_1.0.yaml)  
+Weather service API v1 file ![api_v1](./examples/api_1.0.yaml)  
 ```
 node index.js bundle --file examples/api_v1.yaml
 ```
 And you have [bundled](./examples/api_v1.bundled.json) API file for version 1.  
 
-Next you have version 2 [api_v2](./examples/api_2.0.yaml), look how short it is. Compile it to have correct service API file for version 2
+Next you have version 2 in file [api_v2](./examples/api_2.0.yaml), look how short it is. Compile it to have correct service API file for version 2
 ```
 node index.js bundle --file examples/api_v2.yaml
 ```
