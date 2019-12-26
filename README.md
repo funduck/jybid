@@ -91,7 +91,7 @@ compilePatchOps(
 ```
 
 ## Selectors
-[by property value](#by-property=value-pairs)  
+[by property value](#by-propertyvalue-pairs)  
 [with property](#with-property)  
 [with value](#with-value)  
 
