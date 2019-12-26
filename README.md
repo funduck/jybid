@@ -91,9 +91,9 @@ compilePatchOps(
 ```
 
 ## Selectors
-[by property value](#by_property=value_pairs)  
-[with property](#with_property)  
-[with value](#with_value)  
+[by property value](#by-property=value-pairs)  
+[with property](#with-property)  
+[with value](#with-value)  
 
 In [JSON-Patch](http://jsonpatch.com/) path must be a [JSON-Pointer](https://tools.ietf.org/html/rfc6901), but referencing array elements does not look good: what means `path: '/2'`?. At what element do we point? You never know until you see object to which you apply the patch  
 ```
@@ -168,7 +168,7 @@ node index.js bundle --file examples/api_v1.yaml
 
 Ok, next month we add forecasts for Belarus and we have troubles now: for example a town named 'Kamenka' exists in Russia and in Belarus.  
 Of course we need to add parameter `country` but we can't add it to v1 because some people already use our API in their app and it works ok in Russia and in Finland. If we add `country` with some default value many requests will fail. Well, we could make some workarounds based on city name being checked against list of all cities in our 3 countries but.. it is just better to make next version of API correct and ask our clients to use it instead of incorrect v1.  
-So we need to replace unclear parameter 'names' with 'cities' and add 'country', this [api_v2](./examples/api_v2.yaml) is how we could do it with [jybid](#jybid)  
+So we need to replace unclear parameter 'names' with 'cities' and add 'country', this [api_v2](./examples/api_v2.yaml) is how we could do it with jybid  
 Without inheritance you would have to make one of these documents manually [bundled](./examples/api_v2.bundled.json) [dereferenced](./examples/api_v2.dereferenced.json)  
 
 In [api_v2](./examples/api_v2.yaml) you can find examples of inheritance  
