@@ -94,6 +94,7 @@ $RefParser.prototype.resolve = function (path, schema, options, callback) {
         return maybe(null, resolved, callback);
     })
     .catch((e) => {
+        e.message = `In resolve(path="${path}") ` + e.message;
         maybe(e, null, callback);
     });
     
@@ -109,6 +110,7 @@ $RefParser.prototype.bundle = function (path, schema, options, callback) {
         return maybe(null, bundled, callback);
     })
     .catch((e) => {
+        e.message = `In bundle(path="${path}") ` + e.message;
         maybe(e, null, callback);
     });
     

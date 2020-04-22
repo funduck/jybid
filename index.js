@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const jsonPatch = require('rfc6902');
 const refParser = require('./patched-json-schema-ref-parser');
 const jps = require('./json-pointer-selectors');
@@ -66,6 +67,9 @@ const inherit = function (doc, options) {
     @return {Promise.<object>}
 */
 const bundle = function (filepath, options) {
+    if (!fs.existsSync(filepath)) {
+        return new Promise((res, rej) => rej(new Error(`invalid argument: file "${filepath}" not exists`)));
+    }
     options = options || {};
     const parser = new refParser();
     if (typeof options.inherit == 'string') {
@@ -76,13 +80,13 @@ const bundle = function (filepath, options) {
         try {
             doc = inherit(doc, options);
         } catch (e) {
-            console.error('inherit', doc, e);
+            console.error('inherit', 'doc:', doc, 'error:', e);
             throw e;
         }
         return doc;
     })
     .catch((e) => {
-        console.error('bundle', filepath, e);
+        console.error('bundle', 'filepath:', filepath, 'error:', e);
         throw e;
     });
 };
@@ -105,14 +109,14 @@ const dereference = function (doc, options) {
     try {
         doc = inherit(doc, options);
     } catch (e) {
-        console.error('inherit', doc, e);
+        console.error('inherit', 'doc:', doc, 'error:', e);
         return new Promise(function(resolve, reject) {
             reject(e);
         });
     }
     return refParser.dereference(doc)
     .catch((e) => {
-        console.error('dereference', doc, e);
+        console.error('dereference', 'doc:', doc, 'error:', e);
         throw e;
     });
 };
@@ -124,7 +128,7 @@ if (process.argv[1] == module.filename) {
     switch (process.argv[2]) {
         case 'bundle':
         case 'dereference': {
-            cmd = process.argv[2]; 
+            cmd = process.argv[2];
             break;
         }
         default: {
