@@ -201,6 +201,59 @@ const objectMatchesSelector = (obj, selector) => {
     return true;
 };
 
+const compileOperation = (source, op) => {
+    const re = parseJsonPointer(op.path);
+
+    if (re.selector) {
+        const arr = jsonPtr.get(source, re.prefix);
+
+        // if object is not array check deeper
+        if (!Array.isArray(arr)) {
+            // if there is something to check deeper
+            if (arr[re.infix] != undefined && re.suffix != '') {
+                // relative pathes
+                op = compileOperation(arr[re.infix], Object.assign({}, op, {path: re.suffix}));
+                // relative pathes back to absolute
+                op.path = re.prefix + re.infix + op.path;
+            }
+            return op;
+        }
+
+        // if found array check conditions
+        let found;
+        for (let j = 0; j < arr.length; j++) {
+            if (objectMatchesSelector(arr[j], re.selector)) {
+                if (found) {
+//console.error(re.selector)
+//console.error('first match:', found)
+//console.error('new match:', j, arr[j])
+                    throw new Error(`path ${op.path} compiles to selector that has multiple matches, it is forbidden`);
+                }
+                const tmp = Object.assign({}, op, {path: re.suffix});
+                if (compileOperation(arr[j], tmp)) {
+                    // changing path to JSON-Pointer with number
+                    found = Object.assign({}, op, {path: re.prefix + '/' + j + re.suffix});
+                }
+            }
+        }
+        if (found) {
+            // checking new pathes deeper
+            return compileOperation(source, found);
+        }
+        return null;
+        //throw new Error(`path ${op.path} compiles to selector that has no matches`);
+    }
+
+    // all path exists or "op" is adding a new leaf 
+    if (jsonPtr.get(source, op.path)
+    || op.op == 'add' && jsonPtr.get(source, op.path.match(/(^.*)\/[^\/]*/)[1])
+    ) {
+        return op;
+    }
+
+    return null;
+};
+
 /**
     @param {object} source - object to which patch will be applied
     @param {Array} patchOperations
@@ -210,48 +263,12 @@ const objectMatchesSelector = (obj, selector) => {
 const compileJsonPatch = (source, patchOperations) => {
     const res = [];
     for (let i = 0; i < patchOperations.length; i++) {
-        if (!patchOperations[i].path) continue;
+        const op = patchOperations[i];
+        if (!op.path) continue;
 
-        const re = parseJsonPointer(patchOperations[i].path);
-        if (re.selector) {
-            const arr = jsonPtr.get(source, re.prefix);
-            let tmp = [];
-            // if object is not array check deeper
-            if (!Array.isArray(arr)) {
-                if (arr[re.infix] != undefined && re.suffix != '') {
-                    // relative pathes
-                    tmp = compileJsonPatch(arr[re.infix], [Object.assign({}, patchOperations[i], {path: re.suffix})]);
-                    for (let j = 0;j < tmp.length; j++) {
-                        // relative pathes back to absolute
-                        tmp[j].path = re.prefix + re.infix + tmp[j].path;
-                        res.push(tmp[j]);
-                    }
-                } else {
-                    res.push(patchOperations[i]);
-                }
-                continue;
-            }
-            // if found array check conditions
-            let found = false;
-            for (let j = 0; j < arr.length; j++) {
-                if (objectMatchesSelector(arr[j], re.selector)) {
-                    if (found) {
-                        throw new Error(`path ${patchOperations[i].path} compiles to selector that has multiple matches, it is forbidden`);
-                    }
-                    // changing path to JSON-Pointer with number
-                    tmp.push(Object.assign({}, patchOperations[i], {path: re.prefix + '/' + j + re.suffix}));
-                    found = true;
-                }
-            }
-            if (tmp.length) {
-                // checking new pathes deeper
-                tmp = compileJsonPatch(source, tmp);
-            }
-            if (tmp.length) {
-                res.push(...tmp);
-            }
-        } else {
-            res.push(patchOperations[i]);
+        const compiled = compileOperation(source, op);
+        if (compiled) {
+            res.push(compiled);
         }
     }
     return res;

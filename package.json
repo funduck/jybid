@@ -1,15 +1,15 @@
 {
   "name": "jybid",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "json yaml bundle inherit dereference",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "json-ptr": "^1.1.2",
+    "json-ptr": "^1.2.0",
     "json-schema-ref-parser": "^6.1.0",
-    "rfc6902": "^3.0.2"
+    "rfc6902": "^3.0.4"
   },
   "devDependencies": {},
   "scripts": {

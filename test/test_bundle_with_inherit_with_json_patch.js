@@ -118,6 +118,28 @@ const cases = {
           a: {$ref: '#/b'}, b: {$ref: '#/c'}, c: 3, d: []
         }
     },
+    'with ref to file in "with"': {
+        op: 'bundle',
+        prepare: {
+            '.tmp/a.json': {a: 1},
+            '.tmp/b.json': {$inherit: {
+                source: {
+                    $ref: './a.json'
+                },
+                with: [{
+                    op: 'replace', path: '/a', value: 1.2
+                }, {
+                    op: 'add', path: '/b', value: { $ref: './a.json#/a' }
+                }, {
+                    op: 'add', path: '/c', value: { $ref: './a.json' }
+                }]
+            }}
+        },
+        arguments: ['.tmp/b.json', {inherit: true}],
+        result: {
+          a: 1.2, b: 1, c: { a: 1 }
+        }
+    },
 }
 
 describe('Jybid bundle and dereference file with JSON Patch inheritance', function () {

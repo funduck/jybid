@@ -4,6 +4,8 @@ const fs = require('fs');
 const jsonPatch = require('rfc6902');
 const refParser = require('./patched-json-schema-ref-parser');
 const jps = require('./json-pointer-selectors');
+const jsonPtr = require('json-ptr');
+const clone = require('./clone');
 
 /**
     @param {object} doc
@@ -13,9 +15,10 @@ const jps = require('./json-pointer-selectors');
     
     @return {object} doc - modified source
 */
-const inherit = function (doc, options) {
+const applyInherit = function (doc, options, rootDoc, inWith) {
     if (typeof doc != 'object' || doc == null) return doc;
-    
+   
+    rootDoc = rootDoc || doc;
     options = options || {};
     if (options.inherit == null) {
         return doc;
@@ -23,9 +26,18 @@ const inherit = function (doc, options) {
     if (options.inherit === true) {
         options.inherit = '$inherit';
     }
+
+    const $inherit = options.inherit;
+    const _inherit = encodeURIComponent($inherit);
+    const re_inherit = new RegExp(`\/${_inherit}\/source`, 'g');
+    const _source = `${_inherit}\/source`; 
+    const re_source = new RegExp(`^(.*\/)${_source}\/?(.*)`);
+    const _with = `${_inherit}\/with`; 
+    const re_with = new RegExp(`^(.*\/)${_with}\/?(.*)`);
+
     if (Array.isArray(doc)) {
         for (let i = 0; i < doc.length; i++) {
-            doc[i] = inherit(doc[i], options);
+            doc[i] = applyInherit(doc[i], options, rootDoc, inWith);
         }
     } else {
         for (const key in doc) {
@@ -33,17 +45,40 @@ const inherit = function (doc, options) {
                 if (!doc.$ref.match(/^#/)) {
                     throw new Error('inherit: all outer references \'$ref\' must be resolved!');
                 } else {
-                    // fix internal references, if they have '/$inherit/source', it is correct for bundling
-                    // but we are going to move object 2 levels up, so it won't be correct
-                    doc.$ref = doc.$ref.replace(new RegExp(`\/${encodeURIComponent(options.inherit)}\/source`, 'g'), '');
+                    // if internal references are like '/$inherit/source*' we just bring the document
+                    // because after applying json-patch these references will be invalid
+                    const re = doc.$ref.match(re_source);
+                    if (re) {
+//console.error('found source ref', doc)
+                        // pointer to whole document under key 'source'
+                        if (inWith || !re[2]) {
+//console.error('cloning document', doc.$ref, re, re_source)
+                            return clone(jsonPtr.get(rootDoc, doc.$ref));
+                        } else {
+//console.error('replacing $ref', doc.$ref, re, re_source)
+                            doc.$ref = doc.$ref.replace(re_inherit, '');
+                        }
+                    } else {
+                        // if internal references are like '/$inherit/with*' we just bring the document
+                        // because after applying json-patch these references will be invalid
+                        const re = doc.$ref.match(re_with);
+                        if (re) {
+//console.error('found with ref', doc)
+                            // pointer to whole document under key 'source'
+//console.error('cloning document', doc.$ref, re, re_with)
+                            return clone(jsonPtr.get(rootDoc, doc.$ref));
+                        }
+                    }
                 }
             }
-            doc[key] = inherit(doc[key], options);
+            if (key in doc) {
+                doc[key] = applyInherit(doc[key], options, rootDoc, key == 'with' || inWith);
+            }
         }
-        if (options.inherit && doc[options.inherit]) {
-            const inh = doc[options.inherit];
+        if (doc[$inherit]) {
+            const inh = doc[$inherit];
             if (inh.source == null) {
-                throw new Error(`inherit: ${options.inherit}.source is null!`);
+                throw new Error(`inherit: ${$inherit}.source is null!`);
             }
             if (!(inh.with == null || Array.isArray(inh.with) && inh.with.length == 0)) {
                 const patch = (options.compileJsonPatch || jps.compileJsonPatch)(inh.source, inh.with)
@@ -67,6 +102,7 @@ const inherit = function (doc, options) {
     @return {Promise.<object>}
 */
 const bundle = function (filepath, options) {
+//console.error('Bundle()')
     if (!fs.existsSync(filepath)) {
         return new Promise((res, rej) => rej(new Error(`invalid argument: file "${filepath}" not exists`)));
     }
@@ -78,9 +114,9 @@ const bundle = function (filepath, options) {
     return parser.bundle(filepath)
     .then((doc) => {
         try {
-            doc = inherit(doc, options);
+            doc = applyInherit(doc, options);
         } catch (e) {
-            console.error('inherit', 'doc:', doc, 'error:', e);
+            console.error('inherit', 'doc:', JSON.stringify(doc, null, '  '), 'error:', e);
             throw e;
         }
         return doc;
@@ -100,6 +136,7 @@ const bundle = function (filepath, options) {
     @return {Promise.<object>}
 */
 const dereference = function (doc, options) {
+//console.error('Dereference()')
     if (typeof doc == 'string') {
         return bundle(doc, options)
         .then((doc) => {
@@ -107,7 +144,7 @@ const dereference = function (doc, options) {
         });
     }
     try {
-        doc = inherit(doc, options);
+        doc = applyInherit(doc, options);
     } catch (e) {
         console.error('inherit', 'doc:', doc, 'error:', e);
         return new Promise(function(resolve, reject) {
