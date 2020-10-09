@@ -240,18 +240,20 @@ const compileOperation = (source, op) => {
             // checking new pathes deeper
             return compileOperation(source, found);
         }
-        return null;
-        //throw new Error(`path ${op.path} compiles to selector that has no matches`);
+        //return null;
+        throw new Error(`op ${JSON.stringify(op)} compiles to selector that has no matches`);
     }
 
     // all path exists or "op" is adding a new leaf 
     if (jsonPtr.get(source, op.path)
-    || op.op == 'add' && jsonPtr.get(source, op.path.match(/(^.*)\/[^\/]*/)[1])
+    || (op.op == 'add' || op.op == 'move')
+    && jsonPtr.get(source, op.path.match(/(^.*)\/[^\/]*/)[1])
     ) {
         return op;
     }
 
-    return null;
+    //return null;
+    throw new Error(`op ${JSON.stringify(op)} compiles to selector that has no matches`);
 };
 
 /**
@@ -264,7 +266,9 @@ const compileJsonPatch = (source, patchOperations) => {
     const res = [];
     for (let i = 0; i < patchOperations.length; i++) {
         const op = patchOperations[i];
-        if (!op.path) continue;
+        if (!op.path) {
+            continue;
+        }
 
         const compiled = compileOperation(source, op);
         if (compiled) {

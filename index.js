@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const jsonPatch = require('rfc6902');
-const refParser = require('./patched-json-schema-ref-parser');
+const RefParser = require('./patched-json-schema-ref-parser');
 const jps = require('./json-pointer-selectors');
 const jsonPtr = require('json-ptr');
 const clone = require('./clone');
@@ -81,11 +81,15 @@ const applyInherit = function (doc, options, rootDoc, inWith) {
                 throw new Error(`inherit: ${$inherit}.source is null!`);
             }
             if (!(inh.with == null || Array.isArray(inh.with) && inh.with.length == 0)) {
-                const patch = (options.compileJsonPatch || jps.compileJsonPatch)(inh.source, inh.with)
-                jsonPatch.applyPatch(
-                    inh.source, 
-                    patch
-                );
+//console.log(options.compileJsonPatch, 'SOURCE:', inh.source, 'WITH:', inh.with)
+                inh.with.forEach(op => {
+                    const patch = (options.compileJsonPatch || jps.compileJsonPatch)(inh.source, [op])
+//console.log('PATCH', patch)
+                    jsonPatch.applyPatch(
+                        inh.source, 
+                        patch
+                    );
+                });
             }
             doc = inh.source;
         }
@@ -107,7 +111,7 @@ const bundle = function (filepath, options) {
         return new Promise((res, rej) => rej(new Error(`invalid argument: file "${filepath}" not exists`)));
     }
     options = options || {};
-    const parser = new refParser();
+    const parser = new RefParser();
     if (typeof options.inherit == 'string') {
         parser.setJybidInheritWord(options.inherit);
     }
@@ -151,7 +155,7 @@ const dereference = function (doc, options) {
             reject(e);
         });
     }
-    return refParser.dereference(doc)
+    return RefParser.dereference(doc)
     .catch((e) => {
         console.error('dereference', 'doc:', doc, 'error:', e);
         throw e;
