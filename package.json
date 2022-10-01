@@ -12,7 +12,8 @@
     "rfc6902": "^3.0.4"
   },
   "scripts": {
-    "test": "mocha test -b"
+    "test": "mocha test",
+    "coverage": "nyc npm run test"
   },
   "repository": {
     "type": "git",
@@ -30,5 +31,18 @@
   "bugs": {
     "url": "https://github.com/funduck/jybid/issues"
   },
-  "homepage": "https://github.com/funduck/jybid#readme"
+  "homepage": "https://github.com/funduck/jybid#readme",
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0"
+  },
+  "nyc": {
+    "exclude": [
+      "node_modules"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
+  }
 }
