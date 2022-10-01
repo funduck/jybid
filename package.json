@@ -7,13 +7,12 @@
     "test": "test"
   },
   "dependencies": {
-    "json-ptr": "^1.2.0",
+    "json-ptr": "^3.1.1",
     "json-schema-ref-parser": "^6.1.0",
     "rfc6902": "^3.0.4"
   },
-  "devDependencies": {},
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test -b"
   },
   "repository": {
     "type": "git",

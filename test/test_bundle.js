@@ -3,8 +3,6 @@
 const assert = require('assert');
 const bundle = require('../index').bundle;
 
-const date = new Date();
-
 const casesBundle = {
     'bundle': {
         prepare: {
@@ -47,6 +45,14 @@ const casesBundle = {
 
 describe('Jybid bundle file', function () {
     const fs = require('fs');
+
+    before(() => {
+        if (!fs.existsSync('.tmp')) fs.mkdirSync('.tmp')
+    })
+    after(() => {
+        fs.rmdirSync('.tmp')
+    })
+
     for (const name in casesBundle) {
         it(name, (done) => {
             let error;

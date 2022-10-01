@@ -1,6 +1,6 @@
 'use strict';
 
-const jsonPtr = require('json-ptr');
+const { JsonPointer } = require('json-ptr');
 
 //
 //  Some json pointer additions (path with object selectors)
@@ -205,7 +205,7 @@ const compileOperation = (source, op) => {
     const re = parseJsonPointer(op.path);
 
     if (re.selector) {
-        const arr = jsonPtr.get(source, re.prefix);
+        const arr = JsonPointer.get(source, re.prefix);
 
         // if object is not array check deeper
         if (!Array.isArray(arr)) {
@@ -245,9 +245,9 @@ const compileOperation = (source, op) => {
     }
 
     // all path exists or "op" is adding a new leaf 
-    if (jsonPtr.get(source, op.path)
+    if (JsonPointer.get(source, op.path)
     || (op.op == 'add' || op.op == 'move')
-    && jsonPtr.get(source, op.path.match(/(^.*)\/[^\/]*/)[1])
+    && JsonPointer.get(source, op.path.match(/(^.*)\/[^\/]*/)[1])
     ) {
         return op;
     }

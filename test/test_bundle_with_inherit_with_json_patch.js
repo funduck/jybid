@@ -3,8 +3,6 @@
 const assert = require('assert');
 const jybid = require('../index');
 
-const date = new Date();
-
 const cases = {
     'patch without $ref\'s': {
         op: 'bundle',
@@ -144,6 +142,13 @@ const cases = {
 
 describe('Jybid bundle and dereference file with JSON Patch inheritance', function () {
     const fs = require('fs');
+    
+    before(() => {
+        if (!fs.existsSync('.tmp')) fs.mkdirSync('.tmp')
+    })
+    after(() => {
+        fs.rmdirSync('.tmp')
+    })
 
     for (const name in cases) {
         const test = cases[name];

@@ -4,7 +4,7 @@ const fs = require('fs');
 const jsonPatch = require('rfc6902');
 const RefParser = require('./patched-json-schema-ref-parser');
 const jps = require('./json-pointer-selectors');
-const jsonPtr = require('json-ptr');
+const { JsonPointer } = require('json-ptr');
 const clone = require('./clone');
 
 /**
@@ -53,7 +53,7 @@ const applyInherit = function (doc, options, rootDoc, inWith) {
                         // pointer to whole document under key 'source'
                         if (inWith || !re[2]) {
 //console.error('cloning document', doc.$ref, re, re_source)
-                            return clone(jsonPtr.get(rootDoc, doc.$ref));
+                            return clone(JsonPointer.get(rootDoc, doc.$ref));
                         } else {
 //console.error('replacing $ref', doc.$ref, re, re_source)
                             doc.$ref = doc.$ref.replace(re_inherit, '');
@@ -66,7 +66,7 @@ const applyInherit = function (doc, options, rootDoc, inWith) {
 //console.error('found with ref', doc)
                             // pointer to whole document under key 'source'
 //console.error('cloning document', doc.$ref, re, re_with)
-                            return clone(jsonPtr.get(rootDoc, doc.$ref));
+                            return clone(JsonPointer.get(rootDoc, doc.$ref));
                         }
                     }
                 }
