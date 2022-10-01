@@ -1,5 +1,5 @@
 # JYBID
-![build](https://github.com/funduck/jybid/actions/workflows/build.yml/badge.svg)
+![main](https://github.com/funduck/jybid/actions/workflows/main.yml/badge.svg)
 
 **j**son **y**aml **b**undle **i**nherit **d**ereference **
 
