@@ -10,6 +10,11 @@ This lib allows to manipulate `json` and `yaml` documents:
 
 [Good example](#long-story-short)
 
+## Installation  
+```
+npm i jybid
+```
+
 ## Contents
 
 [Bundle](#bundle)  
