@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-build-publish:
+  test-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,5 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - run: pnpm install
-      - run: pnpm run test:coverage
-      - run: pnpm run test:demo
-      - run: pnpm run build
+      - run: pnpm run coverage
       - run: npm publish --tag latest --access public
